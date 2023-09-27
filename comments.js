@@ -1,43 +1,69 @@
 //Create Web Server
-var express = require('express');
-var app = express();
-var path = require('path');
-var bodyParser = require('body-parser');
-var port = 8080;
-var mongoose = require('mongoose');
-var Comment = require('./models/comment');
-var config = require('./config');
-var router = express.Router();
+//http://localhost:3000/comments
+//http://localhost:3000/comments?postId=1
+//http://localhost:3000/comments?postId=1&userId=1
+//http://localhost:3000/comments?postId=1&userId=1&_sort=id&_order=desc
+//http://localhost:3000/comments?postId=1&userId=1&_sort=id&_order=desc&_limit=1
 
-//Connect to MongoDB
-mongoose.connect(config.database);
+//import express
+const express = require('express');
+//create express app
+const app = express();
+//import json data
+const comments = require('./data/comments');
+//import json data
+const posts = require('./data/posts');
+//import json data
+const users = require('./data/users');
+//import cors
+const cors = require('cors');
+//import body-parser
+const bodyParser = require('body-parser');
+//import lodash
+const _ = require('lodash');
 
-//Configure app to use bodyParser()
-//This will let us get the data from a POST
-app.use(bodyParser.urlencoded({extended: true}));
+//use cors
+app.use(cors());
+//use body-parser
 app.use(bodyParser.json());
 
-//Set static file location for frontend
-app.use(express.static(__dirname + '/public'));
-
-//Routes for API
-router.use(function(req, res, next) {
-  console.log('Something is happening.');
-  next();
-});
-
-//Test route to make sure everything is working
-router.get('/', function(req, res) {
-  res.json({message: 'hooray! welcome to our api!'});
-});
-
-//More routes for API will happen here
-
-//Register routes
-//All routes will be prefixed with /api
-app.use('/api', router);
-
-//Start the server
-app.listen(port);
-// console.log('Magic happens on port ' + port);
-
+//get all comments
+app.get('/comments', (req, res) => {
+    //get postId
+    const postId = req.query.postId;
+    //get userId
+    const userId = req.query.userId;
+    //get sort
+    const sort = req.query._sort;
+    //get order
+    const order = req.query._order;
+    //get limit
+    const limit = parseInt(req.query._limit);
+    //get comments
+    let commentsList = comments;
+    //get posts
+    let postsList = posts;
+    //get users
+    let usersList = users;
+    //check postId
+    if (postId) {
+        //filter comments by postId
+        commentsList = commentsList.filter(comment => comment.postId == postId);
+    }
+    //check userId
+    if (userId) {
+        //filter comments by userId
+        commentsList = commentsList.filter(comment => comment.userId == userId);
+    }
+    //check sort
+    if (sort) {
+        //check order
+        if (order == 'desc') {
+            //sort comments by id descending
+            commentsList = _.orderBy(commentsList, [sort], ['desc']);
+        } else {
+            //sort comments by id ascending
+            commentsList = _.orderBy(commentsList, [sort], ['asc']);
+        }
+    }
+  });
