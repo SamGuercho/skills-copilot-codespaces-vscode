@@ -41,7 +41,3 @@ app.use('/api', router);
 app.listen(port);
 console.log('Magic happens on port ' + port);
 
-// Path: models/comment.js
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
