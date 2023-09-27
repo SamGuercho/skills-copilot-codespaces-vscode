@@ -45,5 +45,3 @@ console.log('Magic happens on port ' + port);
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-//Comment schema
-var CommentSchema = new Schema({
